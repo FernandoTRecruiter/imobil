@@ -1,0 +1,670 @@
+/* =============================================================================
+   mapa.css: estilo do mapa da cidade (pinos do Leaflet) e do 3D isométrico (SVG).
+
+   Por que um CSS do módulo (e não classes do Tailwind no JSX): o 3D tem centenas de
+   faces. Com a cor decidida aqui por ATRIBUTO (data-st = situação, data-dim = fora do
+   filtro, data-focus = alvo do "mostrar no mapa"), trocar o filtro muda um atributo e o
+   navegador repinta; o React não precisa montar 600 estilos de novo.
+
+   Cor: só pelos tokens do styles.css. Cada tipo de corpo diz três cores (topo, parede mais
+   clara, parede mais escura: --k-top, --k-s0, --k-s4) e as faces escolhem o degrau pela
+   classe f-t, f-0 ... f-4 (o iso.ts calcula o degrau pela direção da parede: a luz vem de
+   cima e da esquerda, igual em qualquer giro). A unidade entra com a cor da situação (--c);
+   o que não é nosso fica branco de maquete (--maq-*).
+   ============================================================================= */
+
+/* ---------------------------------------------------------------- pinos do mapa da cidade */
+.mapa-pin-wrap {
+  background: none;
+  border: 0;
+}
+.mapa-pin {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 4px 12px rgb(15 23 42 / 0.22);
+  cursor: pointer;
+}
+.mapa-pin[data-occ='alta'] {
+  background: var(--st-occupied);
+  color: var(--on-primary);
+}
+.mapa-pin[data-occ='media'] {
+  background: color-mix(in srgb, var(--st-occupied) 38%, var(--surface));
+  color: var(--st-occupied-fg);
+}
+.mapa-pin[data-occ='baixa'] {
+  background: var(--surface);
+  color: var(--st-occupied-fg);
+  box-shadow:
+    inset 0 0 0 2px var(--st-occupied),
+    0 0 0 2px var(--surface),
+    0 4px 12px rgb(15 23 42 / 0.22);
+}
+/* Pino de grupo (vários imóveis próximos): um segundo contorno em volta, como uma pilha. */
+.mapa-pin[data-grupo] {
+  outline: 2px solid var(--st-occupied);
+  outline-offset: 2px;
+}
+/* Pino escolhido (o painel ao lado mostra o imóvel dele): anel grafite, a cor da assinatura. */
+.mapa-pin[data-sel] {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--ink),
+    0 4px 12px rgb(15 23 42 / 0.22);
+}
+/* Mouse em cima: o pino sozinho (data-hover, pelo canal do mouse) e o de grupo (data-hover-grupo, direto no DOM). */
+.mapa-pin[data-hover],
+.mapa-pin[data-hover-grupo] {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--border-strong),
+    0 4px 12px rgb(15 23 42 / 0.22);
+}
+.leaflet-marker-icon:focus-visible {
+  outline: none;
+}
+.leaflet-marker-icon:focus-visible .mapa-pin {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.mapa-leaflet.leaflet-container {
+  font: inherit;
+  background: var(--surface-2);
+}
+/* Dica ao passar o mouse no pino (tooltip do Leaflet com as cores do tema). */
+.mapa-leaflet .leaflet-tooltip.mapa-dica {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.mapa-leaflet .leaflet-tooltip.mapa-dica div:last-child {
+  color: var(--muted);
+}
+.mapa-leaflet .leaflet-tooltip-top.mapa-dica::before {
+  border-top-color: var(--surface);
+}
+/* O balão troca de lado perto da borda (placeTip, no CityView): a seta segue a cor do balão. */
+.mapa-leaflet .leaflet-tooltip-bottom.mapa-dica::before {
+  border-bottom-color: var(--surface);
+}
+.mapa-leaflet .leaflet-tooltip-left.mapa-dica::before {
+  border-left-color: var(--surface);
+}
+.mapa-leaflet .leaflet-tooltip-right.mapa-dica::before {
+  border-right-color: var(--surface);
+}
+/* 2 s depois que o mouse sai do pino e do balão, ele esmaece e some (balao.ts). O !important vence a
+   opacidade que o Leaflet escreve no próprio elemento. */
+.mapa-leaflet .leaflet-tooltip.mapa-dica {
+  transition: opacity 0.18s ease-out;
+}
+.mapa-leaflet .leaflet-tooltip.mapa-dica[data-saindo] {
+  opacity: 0 !important;
+}
+.mapa-leaflet .leaflet-control-zoom a {
+  color: var(--text);
+}
+.mapa-leaflet .leaflet-control-attribution {
+  font-size: 10px;
+}
+
+/* Bolinha da legenda embaixo do mapa: a mesma cor do pino. */
+.mapa-dot-alta {
+  background: var(--st-occupied);
+}
+.mapa-dot-media {
+  background: color-mix(in srgb, var(--st-occupied) 38%, var(--surface));
+}
+.mapa-dot-baixa {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--st-occupied);
+}
+/* Lista dos imóveis de um grupo que não se separa nem de perto, dentro do "popup" do Leaflet. */
+.mapa-popup .leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+}
+.mapa-popup .leaflet-popup-content {
+  margin: 14px 14px 12px;
+  font: inherit;
+}
+.mapa-popup .leaflet-popup-tip {
+  background: var(--surface);
+}
+.mapa-popup a.leaflet-popup-close-button {
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  color: var(--muted);
+}
+/* Pinos do fundo neutro (sem azulejos). */
+.fb-pin rect {
+  stroke: var(--surface);
+  stroke-width: 2;
+  filter: drop-shadow(0 3px 6px rgb(15 23 42 / 0.2));
+}
+.fb-pin text {
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.fb-pin[data-occ='alta'] rect {
+  fill: var(--st-occupied);
+}
+.fb-pin[data-occ='alta'] text {
+  fill: var(--on-primary);
+}
+.fb-pin[data-occ='media'] rect {
+  fill: color-mix(in srgb, var(--st-occupied) 38%, var(--surface));
+}
+.fb-pin[data-occ='media'] text,
+.fb-pin[data-occ='baixa'] text {
+  fill: var(--st-occupied-fg);
+}
+.fb-pin[data-occ='baixa'] rect {
+  fill: var(--surface);
+  stroke: var(--st-occupied);
+}
+.fb-pin[data-grupo] rect {
+  stroke: var(--st-occupied);
+  stroke-width: 3;
+}
+.fb-pin:focus {
+  outline: none;
+}
+.fb-pin[data-hover] rect {
+  stroke: var(--border-strong);
+  stroke-width: 3;
+}
+.fb-pin[data-sel] rect {
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+.fb-pin:focus-visible rect {
+  stroke: var(--focus);
+  stroke-width: 4;
+}
+
+/* ---------------------------------------------------------------- 3D: a paleta da maquete */
+/* Chão em cinza-papel; gramado, água e quadra com um toque de cor bem baixo (a cor rica é da
+   situação das unidades). Tudo misturado com --surface: no tema escuro as mesmas contas dão
+   os tons escuros sem tabela à parte. */
+.iso-board,
+.iso-svg {
+  --iso-board: color-mix(in srgb, var(--border) 80%, var(--surface));
+  --iso-asfalto: color-mix(in srgb, var(--border-strong) 85%, var(--surface));
+  --iso-calcada: color-mix(in srgb, var(--border) 40%, var(--surface));
+  --iso-grama: color-mix(in srgb, #7aa37e 17%, var(--surface));
+  --iso-piso: color-mix(in srgb, var(--border) 50%, var(--surface));
+  --iso-estac: color-mix(in srgb, var(--border-strong) 55%, var(--surface));
+  --iso-agua: color-mix(in srgb, #4aa3df 40%, var(--surface));
+  --iso-esporte: color-mix(in srgb, #3f8c5c 46%, var(--surface));
+  --iso-areia: color-mix(in srgb, #d6b98c 40%, var(--surface));
+  --iso-deck: color-mix(in srgb, #c4a37a 32%, var(--surface));
+  --iso-rampa: color-mix(in srgb, var(--text) 34%, var(--surface));
+  --iso-copa: color-mix(in srgb, #6f9a72 42%, var(--surface));
+  --iso-copa-luz: color-mix(in srgb, var(--iso-copa) 55%, white);
+  --iso-linha: var(--surface);
+}
+[data-theme='dark'] .iso-board,
+[data-theme='dark'] .iso-svg {
+  --iso-grama: color-mix(in srgb, #7aa37e 13%, var(--surface));
+  --iso-agua: color-mix(in srgb, #4aa3df 34%, var(--surface));
+  --iso-esporte: color-mix(in srgb, #3f8c5c 36%, var(--surface));
+  --iso-copa: color-mix(in srgb, #6f9a72 36%, var(--surface));
+  --iso-copa-luz: color-mix(in srgb, var(--iso-copa) 80%, var(--text));
+  --iso-linha: color-mix(in srgb, var(--text) 32%, transparent);
+}
+.iso-board {
+  background: var(--iso-board);
+}
+
+/* ---------------------------------------------------------------- 3D: chão */
+.iso-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* o dedo arrasta e pinça o desenho, não a página */
+  user-select: none;
+  cursor: grab;
+}
+.iso-svg[data-drag] {
+  cursor: grabbing;
+}
+/* Imóvel sem implantação (desenho automático): a cidade em volta, como antes. */
+.g-rua,
+.g-base {
+  fill: var(--iso-board);
+}
+.g-quadra {
+  fill: var(--surface);
+}
+.g-lote {
+  fill: color-mix(in srgb, var(--primary) 5%, var(--surface));
+  stroke: color-mix(in srgb, var(--primary) 30%, var(--border));
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+}
+/* Implantação: o chão de cada coisa. */
+.g-asfalto {
+  fill: var(--iso-asfalto);
+}
+.g-calcada {
+  fill: var(--iso-calcada);
+}
+.g-grama {
+  fill: var(--iso-grama);
+}
+.g-piso {
+  fill: var(--iso-piso);
+}
+.g-estac {
+  fill: var(--iso-estac);
+}
+.g-agua {
+  fill: var(--iso-agua);
+  stroke: color-mix(in srgb, var(--iso-agua) 70%, var(--text));
+  stroke-width: 0.6;
+}
+.g-esporte {
+  fill: var(--iso-esporte);
+}
+.g-areia {
+  fill: var(--iso-areia);
+}
+.g-deck {
+  fill: var(--iso-deck);
+}
+.g-rampa {
+  fill: var(--iso-rampa);
+}
+/* Linhas pintadas: faixa da rua, marcação da quadra, divisa do terreno e dos lotes. */
+.l-faixa,
+.l-marca,
+.l-divisa {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.l-faixa {
+  stroke: var(--iso-linha);
+  stroke-width: 1.4;
+}
+.l-marca {
+  stroke: color-mix(in srgb, white 80%, transparent);
+  stroke-width: 0.9;
+}
+.l-divisa {
+  stroke: color-mix(in srgb, var(--text) 20%, transparent);
+  stroke-width: 0.8;
+}
+.iso-sombra {
+  fill: rgb(15 23 42 / 0.1);
+}
+[data-theme='dark'] .iso-sombra {
+  fill: rgb(0 0 0 / 0.35);
+}
+/* Texto no chão: nome da rua, da área e do lazer. O tamanho vem do desenho (cresce com o zoom). */
+.iso-tx {
+  fill: var(--muted);
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: color-mix(in srgb, var(--iso-board) 80%, transparent);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.t-rua {
+  fill: color-mix(in srgb, var(--text) 60%, transparent);
+  stroke: var(--iso-asfalto);
+}
+
+/* ---------------------------------------------------------------- 3D: vagas (no chão) */
+.iso-spot {
+  --c: var(--st-blocked);
+}
+.iso-spot[data-u] {
+  cursor: pointer;
+}
+.iso-spot path {
+  fill: color-mix(in srgb, var(--c) 60%, var(--surface));
+  stroke: var(--iso-linha);
+  stroke-width: 0.9;
+}
+.iso-spot[data-st='available'] {
+  --c: var(--st-available);
+}
+.iso-spot[data-st='occupied'] {
+  --c: var(--st-occupied);
+}
+.iso-spot[data-st='reserved'] {
+  --c: var(--st-reserved);
+}
+.iso-spot[data-st='maintenance'] {
+  --c: var(--st-maintenance);
+}
+.iso-spot[data-dim] {
+  --c: color-mix(in srgb, var(--border-strong) 85%, var(--surface));
+}
+/* Vaga que a sessão não vê (ou que não é administrada): só a pintura no chão. */
+.iso-spot-n path {
+  fill: transparent;
+}
+.iso-spot[data-u]:hover path {
+  stroke: var(--text);
+  stroke-opacity: 0.6;
+}
+.iso-lb-v {
+  font-family: var(--font-mono);
+  font-size: 6px;
+  font-weight: 500;
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- 3D: subsolo em raio X */
+/* A garagem dentro do prédio fica abaixo do chão: só o contorno tracejado, quase transparente.
+   Com uma vaga dela (ou o andar) em destaque, a laje acende na cor de seleção. */
+.iso-sub path {
+  fill: color-mix(in srgb, var(--text) 3%, transparent);
+  stroke: color-mix(in srgb, var(--text) 30%, transparent);
+  stroke-width: 0.8;
+  stroke-dasharray: 4 3;
+}
+.iso-sub[data-focus] path {
+  fill: color-mix(in srgb, var(--primary) 22%, transparent);
+  stroke: var(--primary);
+  stroke-dasharray: none;
+  stroke-width: 1.6;
+}
+
+/* ---------------------------------------------------------------- 3D: faces */
+.iso-svg .f {
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.iso-svg .f-t {
+  fill: var(--k-top);
+}
+.iso-svg .f-0 {
+  fill: var(--k-s0);
+}
+.iso-svg .f-1 {
+  fill: color-mix(in srgb, var(--k-s0) 74%, var(--k-s4));
+}
+.iso-svg .f-2 {
+  fill: color-mix(in srgb, var(--k-s0) 50%, var(--k-s4));
+}
+.iso-svg .f-3 {
+  fill: color-mix(in srgb, var(--k-s0) 26%, var(--k-s4));
+}
+.iso-svg .f-4 {
+  fill: var(--k-s4);
+}
+/* Prédios vizinhos: cenário neutro, mais apagado. */
+.iso-ctx {
+  --k-top: var(--surface);
+  --k-s0: color-mix(in srgb, var(--border-strong) 24%, var(--surface));
+  --k-s4: color-mix(in srgb, var(--border-strong) 62%, var(--surface));
+}
+.iso-ctx .f {
+  stroke: color-mix(in srgb, var(--border-strong) 55%, transparent);
+}
+/* O que não é unidade nossa: andar só de volume, núcleo, parte de andar sem unidade visível,
+   apoio (portaria, salão, garagem da casa). Branco de maquete, linha fina. */
+.iso-slot,
+.iso-vol {
+  --k-top: var(--maq-top);
+  --k-s0: var(--maq-left);
+  --k-s4: color-mix(in srgb, var(--maq-right) 84%, black);
+}
+.iso-slot .f,
+.iso-vol .f {
+  stroke: color-mix(in srgb, var(--text) 13%, transparent);
+}
+/* Vidro (térreo de lojas e hall, salão, academia): as paredes puxam para um azul acinzentado. */
+.iso-svg [data-tone='vidro'] {
+  --k-s0: color-mix(in srgb, #7fa6c4 30%, var(--maq-left));
+  --k-s4: color-mix(in srgb, #5f86a6 40%, var(--maq-right));
+}
+.iso-svg [data-tone='madeira'] {
+  --k-top: color-mix(in srgb, #c49a6c 38%, var(--surface));
+  --k-s0: color-mix(in srgb, #c49a6c 56%, var(--surface));
+  --k-s4: color-mix(in srgb, #9c7449 70%, var(--surface));
+}
+.iso-slot.iso-roof {
+  --k-top: var(--maq-top);
+  --k-s0: color-mix(in srgb, var(--maq-left) 70%, var(--maq-top));
+  --k-s4: var(--maq-right);
+}
+
+/* Unidade: a cor é a da situação (o mesmo token do selo e da legenda). */
+.iso-u {
+  --c: var(--st-blocked);
+  --k-top: color-mix(in srgb, var(--c) 58%, white);
+  --k-s0: var(--c);
+  --k-s4: color-mix(in srgb, var(--c) 64%, black);
+  cursor: pointer;
+}
+.iso-u[data-st='available'] {
+  --c: var(--st-available);
+}
+.iso-u[data-st='occupied'] {
+  --c: var(--st-occupied);
+}
+.iso-u[data-st='reserved'] {
+  --c: var(--st-reserved);
+}
+.iso-u[data-st='maintenance'] {
+  --c: var(--st-maintenance);
+}
+.iso-u[data-st='blocked'] {
+  --c: var(--st-blocked);
+}
+/* Fora do filtro (quartos, situação destacada, outro bloco): vira cinza, como na referência. */
+.iso-u[data-dim] {
+  --c: color-mix(in srgb, var(--border-strong) 85%, var(--surface));
+}
+.iso-u .f {
+  stroke: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+.iso-u.iso-roof {
+  --k-top: color-mix(in srgb, var(--c) 42%, white);
+  --k-s0: color-mix(in srgb, var(--c) 72%, white);
+  --k-s4: color-mix(in srgb, var(--c) 86%, black);
+}
+.iso-u:hover .f {
+  stroke: var(--text);
+  stroke-opacity: 0.55;
+}
+/* Andares acima do andar isolado: quase transparentes e fora do clique. */
+.iso-svg [data-ghost] {
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+/* Árvore de maquete: copa redonda com um brilho em cima (sem gradiente) e o tronco. */
+.iso-tree .cr {
+  fill: var(--iso-copa);
+  stroke: color-mix(in srgb, var(--iso-copa) 70%, var(--text));
+  stroke-width: 0.5;
+}
+.iso-tree .hl {
+  fill: var(--iso-copa-luz);
+}
+.iso-tree .tr {
+  stroke: color-mix(in srgb, #8a7a66 55%, var(--surface));
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* Código da unidade: texto escuro com contorno da cor do fundo (lê sobre qualquer situação, no claro e no escuro). */
+.iso-lb {
+  font-size: 9px;
+  font-weight: 600;
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+/* Nível de detalhe: com o desenho pequeno na tela, os códigos e os nomes do lazer somem
+   (ficariam com 4 px); voltam ao aproximar. Os números das vagas pedem mais zoom ainda. */
+.iso-svg[data-far] .iso-lb,
+.iso-svg[data-far] .t-lazer,
+.iso-svg[data-vfar] .iso-lb-v {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- 3D: foco, destaque e selo */
+/* O anel fica POR CIMA de tudo (camada própria): a unidade destacada (data-sel: a linha da
+   tabela com o mouse em cima) aparece mesmo atrás de outra. data-focus: o alvo do "mostrar no
+   mapa", na cor de seleção e mais grosso. */
+.iso-ring {
+  fill: transparent;
+  /* Contorno transparente de largura 0 (e não "none"): assim a cor e a largura do anel podem
+     entrar com transição quando ele acende. */
+  stroke: transparent;
+  stroke-width: 0;
+  pointer-events: none;
+}
+.iso-ring:focus {
+  outline: none;
+}
+.iso-ring[data-sel] {
+  stroke: var(--text);
+  stroke-width: 2.4;
+}
+.iso-ring[data-focus] {
+  stroke: var(--primary);
+  stroke-width: 3;
+  fill: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.iso-ring:focus-visible {
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+.iso-badge {
+  cursor: pointer;
+}
+.iso-badge:focus {
+  outline: none;
+}
+.iso-badge circle {
+  fill: var(--text);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.iso-badge text {
+  fill: var(--surface);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+/* Nome do bloco embaixo do selo, com o contorno do fundo (lê sobre telhado e chão). */
+.iso-badge .iso-tag {
+  fill: var(--text);
+  font-size: 9px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+}
+.iso-badge:focus-visible circle {
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+.iso-badge[data-dim] {
+  opacity: 0.45;
+}
+
+/* ---------------------------------------------------------------- 3D: giro suave e balão do clique */
+/* O giro em andamento é pintado num canvas por cima do SVG parado (giroCanvas.ts): ele cobre o
+   quadro todo e deixa o mouse passar (nada responde enquanto gira). */
+.iso-giro {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/* Balão do clique: entra com o fade-in da casa e, 2 s depois que o mouse sai, esmaece antes de
+   sumir (balao.ts). Só opacidade; com "reduzir movimento", a regra do styles.css zera o tempo. */
+.iso-balao {
+  transition: opacity 0.18s ease-out;
+}
+.iso-balao[data-saindo] {
+  opacity: 0;
+}
+
+/* Tabela embaixo do 3D: a linha da unidade que está com o mouse em cima NO DESENHO acende aqui
+   também (a tela põe data-hl na célula do código). Pinta a célula e não a linha porque a linha
+   já tem fundo próprio na tabela, e o da célula fica por cima dele. */
+.iso-table tr:has([data-hl]) > td {
+  background: var(--primary-soft);
+}
+/* A unidade escolhida (a tela põe data-selrow no código, sem redesenhar a tabela): o mesmo fundo
+   e um filete azul à esquerda, como a linha escolhida da página Imóveis. */
+.iso-table tr:has([data-selrow]) > td {
+  background: var(--primary-soft);
+}
+.iso-table tr:has([data-selrow]) > td:first-child {
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+/* Movimento curto (07/11): cor da face, anel, pino e o fundo das linhas acesas entram em 150 a
+   180 ms em vez de saltar. Só cor, contorno e opacidade (nada de "transition: all"). */
+@media (prefers-reduced-motion: no-preference) {
+  .iso-u .f,
+  .iso-spot path,
+  .mapa-pin {
+    transition:
+      fill 0.15s ease-out,
+      box-shadow 0.15s ease-out;
+  }
+  .iso-ring {
+    transition:
+      stroke 0.15s ease-out,
+      stroke-width 0.15s ease-out,
+      fill 0.15s ease-out;
+  }
+  /* Só os selos (poucos): opacidade em centenas de faces repintaria o desenho inteiro a cada quadro. */
+  .iso-badge {
+    transition: opacity 0.18s ease-out;
+  }
+  .iso-table td {
+    transition:
+      background-color 0.15s ease-out,
+      box-shadow 0.15s ease-out;
+  }
+}

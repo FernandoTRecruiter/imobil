@@ -1,0 +1,2 @@
+/* Vazio de propósito: no HTML do Power BI o pacote da fonte do app aponta para cá
+   (vite.powerbi.config.ts), e o painel usa a fonte do sistema, sem baixar nem embutir nada. */

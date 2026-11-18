@@ -1,0 +1,14 @@
+/* =============================================================================
+   Estilo do HTML do Power BI: os MESMOS tokens do app (styles.css), com duas trocas.
+   1. Fonte: o vite.powerbi.config.ts aponta o pacote da fonte do app para sem-fonte.css
+      (vazio). O visual roda sem internet e usa a fonte do sistema; embutir a fonte
+      somaria uns 100 KB à medida DAX.
+   2. Classes: com a raiz do Vite em src/powerbi, o Tailwind só procura classes aqui; as
+      linhas @source abaixo somam só os arquivos que este painel desenha. Sem isso viriam as
+      classes do app inteiro.
+   ============================================================================= */
+@import '../styles.css';
+/* Desde 07/11/2026 o painel desenha os blocos da Visão geral (Blocos.tsx) com a tendência (charts.tsx);
+   BarList e Badge saíram (ocupação por imóvel e situação das unidades não estão mais no painel). */
+@source '../modules/visao-geral/charts.tsx';
+@source '../modules/visao-geral/Blocos.tsx';

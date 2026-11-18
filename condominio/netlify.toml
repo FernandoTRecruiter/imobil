@@ -1,0 +1,24 @@
+# Netlify lê este arquivo sozinho quando o repositório está ligado a ele (docs/PUBLICAR.md, fase 2).
+# Diz como gerar o site e onde fica o resultado; as chaves do Supabase NÃO ficam aqui (vão nas
+# variáveis de ambiente do painel do Netlify).
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # O Vite 8 pede Node 22 ou mais novo.
+  NODE_VERSION = "22"
+
+# Cabeçalhos de segurança em todas as páginas:
+#   X-Frame-Options: nenhum outro site consegue embutir o app (golpe de clique escondido);
+#   X-Content-Type-Options: o navegador não "adivinha" o tipo do arquivo;
+#   Referrer-Policy: o endereço completo não vaza para sites de fora;
+#   Permissions-Policy: o app não pede câmera, microfone nem localização.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

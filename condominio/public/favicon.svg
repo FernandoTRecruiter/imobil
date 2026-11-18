@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Plaqueta do apartamento com um prédio (versão de portfólio). Gerado por gera_portfolio.py. -->
+  <rect x="4" y="12" width="56" height="40" rx="8" fill="#2b59c3"/>
+  <path d="M24 44V22h16v22M29 28h6M29 34h6M29 40h6" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Marca provisória do Imobil: um bloco isométrico (o mesmo desenho do mapa). Trocar quando houver marca. -->
+  <rect width="32" height="32" rx="8" fill="#3a5cf0"/>
+  <path d="M16 6 26 11.5 16 17 6 11.5Z" fill="#ffffff"/>
+  <path d="M6 11.5 16 17v9L6 20.5Z" fill="#c9d3fc"/>
+  <path d="M26 11.5 16 17v9l10-5.5Z" fill="#94a6f7"/>
+</svg>

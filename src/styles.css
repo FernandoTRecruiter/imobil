@@ -1,0 +1,248 @@
+/* =============================================================================
+   Tokens do Imobil: TODA cor, fonte, peso e raio da interface sai daqui.
+
+   Direção (05/11/2026):
+   - Produto: cuida dos imóveis alugados de quem é dono ou administra.
+   - Caráter: exato, sereno, de prancheta.
+   - Mundo: maquete branca de arquiteto sobre a prancha. Neutros cinza-papel, linha fina de
+     desenho técnico, um azul de planta só para o que importa (ação principal, seleção, ocupada).
+   - Momentos: a maquete da carteira (Visão geral) e o espelho de unidades. Ali a cor é rica;
+     no resto (cromo: menu, barra, cartões) fica quieta.
+   - Assinatura: o marco de ocupação, um círculo grafite com o % em algarismo mono.
+
+   Contraste medido no claro (texto sobre branco): text 17:1, muted 6,4:1, faint 4,8:1,
+   primary 6,3:1 (e branco sobre primary também), situações entre 4,8:1 e 5,1:1.
+   As variações (passar o mouse, fundo suave, texto do selo) DERIVAM da cor base com color-mix:
+   quando a imobiliária troca a cor da marca ou de uma situação, elas vêm junto.
+   ============================================================================= */
+@import 'tailwindcss';
+/* O app Condomínio mora dentro desta pasta (imobil/condominio) e tem o CSS dele: sem esta linha, o
+   Tailwind do Imobil varre aquelas telas também e põe classes que o Imobil não usa (06/11). */
+@source not "../condominio";
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+/* "dark:" do Tailwind passa a valer quando a página tem data-theme="dark". */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  /* Rampa neutra (papel da prancha). Três papéis de texto: text, muted, faint. */
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f1f3f5;
+  --border: #e4e7eb;
+  --border-strong: #cdd2d9;
+  --text: #15181d;
+  --muted: #565d69;
+  --faint: #6b7280;
+  --ink: #20252d; /* grafite: marco de ocupação, marca, faixa de demonstração */
+  --on-ink: #ffffff;
+
+  --primary: #2b59c3; /* azul de planta */
+  --primary-hover: color-mix(in srgb, var(--primary) 86%, #000);
+  --primary-soft: color-mix(in srgb, var(--primary) 8%, #fff);
+  --on-primary: #ffffff;
+  --focus: var(--primary);
+
+  /* Situação da unidade: a cor carrega significado, nunca enfeite. */
+  --st-available: #15803d;
+  --st-available-fg: color-mix(in srgb, var(--st-available) 62%, #000);
+  --st-occupied: #2b59c3;
+  --st-occupied-fg: color-mix(in srgb, var(--st-occupied) 62%, #000);
+  --st-reserved: #b45309;
+  --st-reserved-fg: color-mix(in srgb, var(--st-reserved) 62%, #000);
+  --st-maintenance: #c2410c;
+  --st-maintenance-fg: color-mix(in srgb, var(--st-maintenance) 62%, #000);
+  --st-blocked: #64748b;
+  --st-blocked-fg: color-mix(in srgb, var(--st-blocked) 62%, #000);
+
+  /* Avisos */
+  --danger: #dc2626;
+  --danger-fg: #7f1d1d;
+  --success: #15803d;
+  --success-fg: #14532d;
+  --warning: #b45309;
+  --warning-fg: #78350f;
+
+  /* Maquete: chão, rua e as três faces do bloco branco (a luz vem da esquerda). */
+  --maq-ground: #eceef1;
+  --maq-street: #e1e4e9;
+  --maq-top: #ffffff;
+  --maq-left: #eef0f3;
+  --maq-right: #dde1e6;
+  --maq-edge: rgb(21 24 29 / 0.1);
+  --maq-empty: #e6ebf6; /* unidade vaga: o bloco do imóvel quase branco, levemente azul */
+
+  /* Profundidade no claro: sombra neutra e pequena; o resto é linha fina. */
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-pop: 0 8px 24px rgb(16 24 40 / 0.1);
+}
+
+/* Tema escuro: rampa grafite; profundidade por degrau de superfície e linha fina. */
+[data-theme='dark'] {
+  --bg: #141517;
+  --surface: #1b1c1f;
+  --surface-2: #24252a;
+  --border: #2e3035;
+  --border-strong: #40434a;
+  --text: #ececee;
+  --muted: #a7aab1;
+  --faint: #8d9199;
+  --ink: #e8e9ec;
+  --on-ink: #15181d;
+  --primary: #7f9df0;
+  --primary-hover: color-mix(in srgb, var(--primary) 85%, #fff);
+  --primary-soft: color-mix(in srgb, var(--primary) 16%, #1b1c1f);
+  --on-primary: #10141f;
+  --focus: #a3b8f5;
+  --st-available: #4ade80;
+  --st-available-fg: color-mix(in srgb, var(--st-available) 72%, #fff);
+  --st-occupied: #7f9df0;
+  --st-occupied-fg: color-mix(in srgb, var(--st-occupied) 72%, #fff);
+  --st-reserved: #fbbf24;
+  --st-reserved-fg: color-mix(in srgb, var(--st-reserved) 72%, #fff);
+  --st-maintenance: #fb923c;
+  --st-maintenance-fg: color-mix(in srgb, var(--st-maintenance) 72%, #fff);
+  --st-blocked: #94a3b8;
+  --st-blocked-fg: color-mix(in srgb, var(--st-blocked) 72%, #fff);
+  --danger: #f87171;
+  --danger-fg: #fca5a5;
+  --success: #4ade80;
+  --success-fg: #86efac;
+  --warning: #fbbf24;
+  --warning-fg: #fcd34d;
+  --maq-ground: #1e2023;
+  --maq-street: #26282c;
+  --maq-top: #43464d;
+  --maq-left: #35383e;
+  --maq-right: #2b2d32;
+  --maq-edge: rgb(236 236 238 / 0.08);
+  --maq-empty: #3a4256;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.45);
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  /* Hierarquia por tamanho e cor, não por peso: nesta direção "semibold" é 500 e "bold" é 600
+     (vale para todo o app, inclusive os módulos, sem editar arquivo por arquivo). */
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  /* Texto abaixo de 40px nunca tem letra apertada nem caixa alta espaçada. */
+  --tracking-tight: 0em;
+  --tracking-wide: 0em;
+  --tracking-wider: 0.01em;
+  /* Raios: cartão 12, controle 8, etiqueta 6. */
+  --radius-2xl: 0.75rem;
+  --radius-xl: 0.625rem;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
+  --color-danger-fg: var(--danger-fg);
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-warning: var(--warning);
+  --color-warning-fg: var(--warning-fg);
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-pop);
+}
+
+/* =============================================================================
+   Movimento (07/11/2026, "tá muito travado"): curto (150 a 220 ms), saída suave (ease-out), e só
+   em opacidade e transform. Cada animação diz uma coisa: "isto acabou de aparecer" (painel de aba,
+   ficha curta, linhas novas da tabela), "isto abriu por cima" (janela, menu) ou "isto chegou"
+   (aviso). Nada pisca nem fica em laço. Com "reduzir movimento" ligado no sistema, a regra no fim
+   deste arquivo zera tudo (e quem anima por JavaScript confere a mesma preferência).
+   Sem "fill-mode": acabada a animação, o elemento volta ao estilo dele (e a transição de
+   opacidade, como o esmaecer da tabela, continua funcionando).
+   ============================================================================= */
+@theme {
+  --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-fade-in: fade-in 180ms var(--ease-soft);
+  --animate-rise-in: rise-in 200ms var(--ease-soft);
+  --animate-pop-in: pop-in 180ms var(--ease-soft);
+  --animate-toast-in: toast-in 220ms var(--ease-soft);
+  --animate-sheet-in: sheet-in 220ms var(--ease-soft);
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  /* 4 px de subida: o suficiente para o olho ver que é conteúdo novo, sem "voar". */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  /* Janela e menu: crescem de 98% (escala usa transform; o centrar da janela usa "translate", que é outra propriedade). */
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+  }
+}
+
+html {
+  /* O cabeçalho fixo (faixa 28 + barra 48 px) não pode cobrir o item que recebe foco ao navegar por Tab. */
+  scroll-padding-top: 6rem;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+/* Números como cota de planta: Geist Mono, algarismos da mesma largura (alinham na vertical). */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+/* Na camada base (06/11): fora dela a regra vencia o focus:outline-none dos componentes (o Dialog
+   abria com um anel azul em volta da janela inteira). Quem não desliga continua com o anel. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+/* Uma curva só para todo movimento (hover, menu); só cor, fundo, borda, opacidade e transform.
+   Reduzir movimento: animação e transição viram instantâneas (o estado final aparece direto) e a
+   rolagem "suave" do navegador vira salto. O 3D e o mapa conferem a mesma preferência no JS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

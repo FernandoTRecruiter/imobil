@@ -1,0 +1,30 @@
+# Dependências e saídas de build (regeráveis com npm install / npm run build)
+node_modules
+dist
+dist-arquivo
+*.tsbuildinfo
+.tanstack/
+# app em arquivo único (regerável com npm run arquivo); a demonstração publicada é docs/demo/index.html
+Imobil.html
+Imobil - Documentação.html
+condominio/Condominio.html
+# saídas geradas pelo gerador do Power BI (regeráveis com npm run powerbi)
+powerbi/saida
+# fotos e relatórios dos testes de tela
+tests/fotos/
+condominio/tests/fotos/
+test-results
+playwright-report
+# variáveis de ambiente: só o modelo sobe
+*.local
+.env
+.env.*
+!.env.example
+# lixo de editor, cópias e Python
+*.bak*
+__pycache__/
+*.pyc
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

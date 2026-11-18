@@ -1,0 +1,659 @@
+/* =============================================================================
+   Condomínio: estilo. Direção visual (17/11/2026), herdada do Imobil:
+   - Produto: o morador reserva lavanderia e diária, pede vaga e denuncia pelo celular; a portaria
+     e o síndico atendem pela web.
+   - Caráter: direto, de balcão, sereno.
+   - Mundo: o livro de reservas da portaria (papel claro, linha fina, caneta azul).
+   - Momentos: a grade do calendário e o painel do dia. O resto fica quieto.
+   - Assinatura: a plaqueta do apartamento (.apto), sempre igual.
+   Cores só aqui, em variáveis. Escuro troca as variáveis.
+   ============================================================================= */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+:root {
+  --bg: #f5f5f2;
+  --surface: #ffffff;
+  --surface-2: #f0f0ec;
+  --ink: #1d1f23;
+  --text-2: #4f545c;
+  --muted: #676c74;
+  --line: rgba(29, 31, 35, 0.1);
+  --line-2: rgba(29, 31, 35, 0.18);
+  --primary: #2b59c3;
+  --primary-ink: #ffffff;
+  --primary-soft: rgba(43, 89, 195, 0.09);
+  --danger: #b3261e;
+  --ok: #2f7d5b;
+  --pend-bg: #fbefb8;
+  --pend-ink: #6b4f00;
+  --s-lavagem: #2b59c3;
+  --s-diaria: #2f7d5b;
+  --s-estacionamento: #9a6420;
+  --s-denuncia: #b3261e;
+  --shadow: 0 1px 2px rgba(29, 31, 35, 0.06), 0 4px 12px rgba(29, 31, 35, 0.05);
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121315;
+    --surface: #1b1c1f;
+    --surface-2: #232428;
+    --ink: #ebebec;
+    --text-2: #b4b7bc;
+    --muted: #979ba2;
+    --line: rgba(255, 255, 255, 0.09);
+    --line-2: rgba(255, 255, 255, 0.17);
+    --primary: #86a6f3;
+    --primary-ink: #0f1830;
+    --primary-soft: rgba(134, 166, 243, 0.13);
+    --danger: #f08a80;
+    --ok: #74c69d;
+    --pend-bg: #3a3112;
+    --pend-ink: #f1d77c;
+    --s-lavagem: #86a6f3;
+    --s-diaria: #74c69d;
+    --s-estacionamento: #e0a560;
+    --s-denuncia: #f08a80;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 14px/1.45 'Geist Variable', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 600;
+}
+h1 {
+  font-size: 20px;
+}
+h2 {
+  font-size: 16px;
+}
+h3 {
+  font-size: 14px;
+}
+p {
+  margin: 0;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+.num,
+.mono {
+  font-family: 'Geist Mono Variable', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.apagado {
+  color: var(--muted);
+}
+.sec {
+  color: var(--text-2);
+}
+.peq {
+  font-size: 12px;
+}
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 140ms var(--curva), border-color 140ms var(--curva), transform 120ms var(--curva);
+}
+.btn:hover {
+  background: var(--surface-2);
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+.btn.primario {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+}
+.btn.primario:hover {
+  background: color-mix(in srgb, var(--primary) 88%, var(--ink));
+}
+.btn.perigo {
+  color: var(--danger);
+}
+.btn.quieto {
+  border-color: transparent;
+  background: transparent;
+}
+.btn.quieto:hover {
+  background: var(--surface-2);
+}
+.btn.grande {
+  min-height: 48px;
+  font-size: 15px;
+  width: 100%;
+}
+.btn.icone {
+  padding: 0;
+  width: 36px;
+}
+.btn svg {
+  flex: none;
+}
+
+/* ------------------------------------------------------------------ formulário */
+.campo {
+  display: grid;
+  gap: 6px;
+}
+.campo > label,
+.campo > .rotulo {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.campo input,
+.campo select,
+.campo textarea,
+.entrada {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.campo textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+.campo .erro {
+  font-size: 12px;
+  color: var(--danger);
+}
+.campo .dica {
+  font-size: 12px;
+  color: var(--muted);
+}
+.marcar {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.marcar input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--primary);
+}
+
+/* ------------------------------------------------------------------ peças */
+.cartao {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* A assinatura: plaqueta do apartamento. Sempre este desenho. */
+.apto {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  background: var(--surface);
+  font-family: 'Geist Mono Variable', ui-monospace, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.apto small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.apto.anonima {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+.selo::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.selo.espera {
+  color: var(--s-estacionamento);
+}
+.selo.ok {
+  color: var(--ok);
+}
+.selo.fim {
+  color: var(--muted);
+}
+.selo.nao {
+  color: var(--danger);
+}
+
+.pend {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--pend-bg);
+  color: var(--pend-ink);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ponto {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.ponto.lavagem {
+  background: var(--s-lavagem);
+}
+.ponto.diaria {
+  background: var(--s-diaria);
+}
+.ponto.estacionamento {
+  background: var(--s-estacionamento);
+}
+.ponto.denuncia {
+  background: var(--s-denuncia);
+}
+
+.info {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: help;
+  position: relative;
+  vertical-align: middle;
+}
+.info .balao {
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  left: 50%;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity 160ms var(--curva), transform 160ms var(--curva);
+}
+.info:hover .balao,
+.info:focus-visible .balao {
+  opacity: 1;
+  transform: translate(-50%, 8px);
+}
+
+.vazio {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.aviso {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(92vw, 480px);
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+.aviso.erro {
+  background: var(--danger);
+  color: #fff;
+}
+.faixa-erro {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  color: var(--danger);
+  font-size: 13px;
+}
+
+dialog.janela {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+dialog.janela::backdrop {
+  background: rgba(18, 19, 21, 0.45);
+}
+.janela-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.janela-corpo {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+.janela-pe {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+
+.codigo-grande {
+  padding: 16px;
+  border: 1px dashed var(--line-2);
+  border-radius: 10px;
+  text-align: center;
+  font-family: 'Geist Mono Variable', ui-monospace, monospace;
+  font-size: 28px;
+  letter-spacing: 0.18em;
+}
+
+/* Linha do tempo (histórico): o que torna a denúncia transparente. */
+.linha-tempo {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.linha-tempo li {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 10px;
+}
+.linha-tempo li::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin: 6px 0 0 2px;
+  border-radius: 50%;
+  background: var(--line-2);
+}
+.linha-tempo li:last-child::before {
+  background: var(--primary);
+}
+.nota {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--primary);
+  background: var(--primary-soft);
+  border-radius: 0 6px 6px 0;
+}
+
+/* ------------------------------------------------------------------ abas (segmentado) */
+.abas {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.abas button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 140ms var(--curva), color 140ms var(--curva);
+}
+.abas button[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+/* ------------------------------------------------------------------ tabela */
+.moldura-tabela {
+  overflow-x: auto;
+}
+table.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tabela th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line-2);
+  padding: 0;
+  white-space: nowrap;
+}
+.tabela th button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: inherit;
+}
+.tabela th[aria-sort='ascending'] button,
+.tabela th[aria-sort='descending'] button {
+  color: var(--ink);
+}
+.tabela td {
+  white-space: nowrap;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.tabela tbody tr {
+  cursor: pointer;
+  transition: background-color 120ms var(--curva);
+}
+.tabela tbody tr:hover {
+  background: var(--surface-2);
+}
+.tabela tbody tr[aria-selected='true'] {
+  background: var(--primary-soft);
+}
+.tabela .dir {
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+@media (pointer: coarse) {
+  .btn:active {
+    transform: none;
+  }
+}
+
+/* =============================================================================
+   Movimento (17/11): só o que explica. Uma curva (--curva), entradas de 180 a 240 ms, nada em laço,
+   nada que pule. Tudo some com "reduzir movimento" do aparelho.
+   ============================================================================= */
+html {
+  scroll-behavior: smooth;
+}
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aviso-entra {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes risca {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes cresce {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Tela, aba ou painel que acabou de aparecer */
+.anima-entra {
+  animation: entra 220ms var(--curva) both;
+}
+.aviso {
+  animation: aviso-entra 200ms var(--curva) both;
+}
+dialog.janela[open] {
+  animation: entra 200ms var(--curva);
+}
+dialog.janela[open]::backdrop {
+  animation: cresce 200ms var(--curva);
+}
+
+/* A marca do app (plaqueta com a letra) */
+.marca {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+.marca rect {
+  fill: var(--primary);
+}
+.marca path {
+  fill: none;
+  stroke: var(--primary-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after,
+  dialog.janela[open],
+  dialog.janela[open]::backdrop {
+    animation: none !important;
+  }
+}
